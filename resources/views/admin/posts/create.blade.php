@@ -14,6 +14,7 @@
                       <label for="Title">Title</label>
                       <input type="text" name="title" class="form-control" id="title" aria-describedby="titleHelp" placeholder="Enter title">
                       <small id="titleHelp" class="form-text text-muted">Title should not greater than 200 char</small>
+                      <small id="titleHelp" class="form-text" style="color:red">@if($errors->has('title')) {{$errors->first('title') }} @endif</small>
                     </div>
                     <div class="form-group">
                       <label for="Body">Body</label>

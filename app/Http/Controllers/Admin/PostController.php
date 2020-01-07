@@ -21,6 +21,17 @@ class PostController extends Controller
     }
 
     /**
+     *
+     * vaidations
+     *@return \Illuminate\Http\Response
+     */
+     public function validateattributes()
+     {
+       return Request()->validate([
+         'title' => 'required|max:200|min:5',
+       ]);
+     }
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -38,11 +49,10 @@ class PostController extends Controller
      */
     public function store(Post $post)
     {
-        $post::create([
-          'user_id' => Auth::user()->id,
-          'title' => request('title'),
-          'body'=> request('content'),
-        ]);
+      $attributes = $this->validateattributes();
+      $attributes['body']=request('content');
+      $attributes['user_id']=Auth::user()->id;
+        $post::create($attributes);
         return redirect('/posts');
     }
 
