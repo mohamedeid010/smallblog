@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Post;
 use Auth;
+use Session;
+use Illuminate\Http\UploadedFile;
 
 class PostController extends Controller
 {
@@ -47,12 +49,19 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Post $post)
+    public function store(Request $request ,Post $post)
     {
+
+      request('image')->storeAs('images', request('image')->getClientOriginalName());
+      //request('image')->store('image');
       $attributes = $this->validateattributes();
       $attributes['body']=request('content');
       $attributes['user_id']=Auth::user()->id;
+      $attributes['image']=request('image')->getClientOriginalName();
+
+      //$attributes['user_id']=$request->logo->store('logos');
         $post::create($attributes);
+        Session::flash('message','New Post saved Succefuly');
         return redirect('/posts');
     }
 
@@ -62,9 +71,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        return view('admin.posts.view',compact('post'));
     }
 
     /**
@@ -73,9 +82,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        return view('admin.posts.update',compact('post'));
     }
 
     /**
@@ -85,9 +94,14 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Post $post)
     {
-        //
+      $attributes = $this->validateattributes();
+      $attributes['body']=request('content');
+      $attributes['user_id']=Auth::user()->id;
+        $post->update($attributes);
+        Session::flash('message','Post updated Succefuly');
+        return redirect('/posts');
     }
 
     /**
@@ -96,8 +110,10 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        Session::flash('message','Post Deleted Succefuly');
+        return redirect('/posts');
     }
 }
