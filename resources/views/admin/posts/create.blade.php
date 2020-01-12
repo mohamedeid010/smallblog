@@ -22,7 +22,8 @@
                     </div>
                     <div class="form-group">
                       <label for="Body">Body</label>
-                      <textarea name="content" rows="8" cols="80"class="form-control" id="content" placeholder="Enter content here"></textarea>
+                      <textarea name="body" rows="8" cols="80"class="form-control" id="content" placeholder="Enter content here"></textarea>
+                      <small id="titleHelp" class="form-text" style="color:red">@if($errors->has('body')) {{$errors->first('body') }} @endif</small>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </form>

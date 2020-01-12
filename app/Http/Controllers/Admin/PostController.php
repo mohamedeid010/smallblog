@@ -7,10 +7,16 @@ use App\Http\Controllers\Controller;
 use App\Post;
 use Auth;
 use Session;
-use Illuminate\Http\UploadedFile;
 
 class PostController extends Controller
 {
+
+    //__construct
+    public function __construct()
+    {
+      $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,8 +24,20 @@ class PostController extends Controller
      */
     public function index()
     {
+        //dd(auth()->user()->id);
+        //$this->authorize('showdata');
+        /*if(Gate::allows('showdata',auth()->user()))
+        {*/
+        $this->authorize('checkme',Post::class);
         $posts = Post::orderBy('created_at', 'desc')->paginate(30);
-        return view('admin.posts.index',compact('posts'));
+
+
+          return view('admin.posts.index',compact('posts'));
+        /*}
+        else{
+          abort(403);
+        }*/
+
     }
 
     /**
@@ -31,6 +49,8 @@ class PostController extends Controller
      {
        return Request()->validate([
          'title' => 'required|max:200|min:5',
+         'image'=> 'image',
+         'body'=>'required'
        ]);
      }
     /**
@@ -49,17 +69,15 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request ,Post $post)
+    public function store(Post $post)
     {
-
-      request('image')->storeAs('images', request('image')->getClientOriginalName());
-      //request('image')->store('image');
+      if(request('image')){
+        request('image')->storeAs('images', request('image')->getClientOriginalName());
+        $attributes['image']=request('image')->getClientOriginalName();
+      }
       $attributes = $this->validateattributes();
-      $attributes['body']=request('content');
       $attributes['user_id']=Auth::user()->id;
-      $attributes['image']=request('image')->getClientOriginalName();
 
-      //$attributes['user_id']=$request->logo->store('logos');
         $post::create($attributes);
         Session::flash('message','New Post saved Succefuly');
         return redirect('/posts');
@@ -73,6 +91,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+
+        //$this->authorize('delete', $post);
         return view('admin.posts.view',compact('post'));
     }
 
@@ -112,6 +132,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+
         $post->delete();
         Session::flash('message','Post Deleted Succefuly');
         return redirect('/posts');
